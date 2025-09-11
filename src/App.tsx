@@ -101,7 +101,7 @@ export default function Copi() {
         />
         <div className="w-full max-w-3xl space-y-4">
           {loading && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 z-10 flex items-center justify-center">
               <div className="relative flex items-center gap-2 ">
                 <Loader2 className="h-5 w-5 animate-spin" />
                 <span className="text-[#4B3C2F]">Loading…</span>
@@ -110,7 +110,7 @@ export default function Copi() {
           )}
 
           {err && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 z-10 flex items-center justify-center">
               <div className="relative flex items-center gap-2 ">
                 <span className="text-red-600">{err}</span>
               </div>
@@ -118,8 +118,8 @@ export default function Copi() {
           )}
 
           {!loading && !err && posts.length === 0 && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-              <div className="relative flex items-center gap-2 ">
+            <div className="fixed inset-0 z-10 flex items-center justify-center">
+              <div className="relative flex flex-col items-center gap-2 ">
                 <span className="text-[#4B3C2F]">No posts yet.</span>
                 <p className="text-sm text-[#4B3C2F]/60">
                   Share your first coffee story!
