@@ -118,12 +118,28 @@ export default function Copi() {
           )}
 
           {!loading && !err && posts.length === 0 && (
-            <div className="fixed inset-0 z-10 flex items-center justify-center">
-              <div className="relative flex flex-col items-center gap-2 ">
-                <span className="text-[#4B3C2F]">No posts yet.</span>
-                <p className="text-sm text-[#4B3C2F]/60">
-                  Share your first coffee story!
-                </p>
+            <div
+              className="fixed inset-0 z-10 pointer-events-none flex items-center justify-center"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="relative pointer-events-auto flex flex-col items-center gap-2 text-center">
+                {searchTerm.trim().length > 0 ? (
+                  <>
+                    <p className=" text-[#4B3C2F]">
+                      No results found for{" "}
+                      <span className="font-bold"> "{searchTerm.trim()}"</span>.
+                    </p>
+                    <p className="text-sm">Be the first to share!</p>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[#4B3C2F]">No posts yet.</span>
+                    <p className="text-sm text-[#4B3C2F]/80">
+                      Share your first coffee story!
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           )}
