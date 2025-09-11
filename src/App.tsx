@@ -140,7 +140,7 @@ export default function Copi() {
             ))}
         </div>
 
-        {!loading && totalPosts > 0 && (
+        {!loading && totalPosts > 3 && (
           <Pagination className="flex flex-col items-end overflow-hidden py-6 w-full max-w-3xl">
             <PaginationContent>
               <PaginationItem>
