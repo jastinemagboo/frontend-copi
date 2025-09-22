@@ -5,5 +5,3 @@ export const api = axios.create({
   withCredentials: false,
   headers: { "Content-Type": "application/json" },
 });
-
-console.log("API baseURL =", api.defaults.baseURL);
