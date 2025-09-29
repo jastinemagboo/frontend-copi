@@ -143,7 +143,7 @@
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  animation: shimmer 1.2s linear infinite;
+  animation: shimmer 1s linear infinite;
   background: linear-gradient(
     90deg,
     transparent,

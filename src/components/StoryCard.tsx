@@ -160,7 +160,7 @@ export default function StoryCard({
       )}
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <Skeleton className="h-4 w-11/12 bg-[#f5f1eb] skel animate-none" />
           <Skeleton className="h-4 w-11/12 bg-[#f5f1eb] skel animate-none" />
         </div>
