@@ -11,7 +11,6 @@ import {
 import StoryCard from "@/components/StoryCard";
 import StoryModal from "@/components/StoryModal";
 import SearchBar from "@/components/SearchBar";
-import { Loader2 } from "lucide-react";
 
 const postsPerPage = 3;
 const MIN_SWAP_MS = 400;
@@ -100,15 +99,6 @@ export default function Copi() {
           placeholder="Search your coffee stories…"
         />
         <div className="w-full max-w-3xl space-y-4">
-          {loading && (
-            <div className="fixed inset-0 z-10 flex items-center justify-center">
-              <div className="relative flex items-center gap-2 ">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span className="text-[#4B3C2F]">Loading…</span>
-              </div>
-            </div>
-          )}
-
           {err && (
             <div className="fixed inset-0 z-10 flex items-center justify-center">
               <div className="relative flex items-center gap-2 ">
@@ -144,16 +134,25 @@ export default function Copi() {
             </div>
           )}
 
-          {!loading &&
-            !err &&
-            posts.map((post) => (
-              <StoryCard
-                key={post.id}
-                post={post}
-                onDelete={handleDelete}
-                onUpdate={handleUpdate}
-              />
-            ))}
+          {loading
+            ? Array.from({ length: postsPerPage }).map((_, i) => (
+                <StoryCard
+                  key={`sk-${i}`}
+                  post={{} as Post}
+                  isLoading
+                  onDelete={handleDelete}
+                  onUpdate={handleUpdate}
+                />
+              ))
+            : !err &&
+              posts.map((post) => (
+                <StoryCard
+                  key={post.id}
+                  post={post}
+                  onDelete={handleDelete}
+                  onUpdate={handleUpdate}
+                />
+              ))}
         </div>
 
         {!loading && totalPosts > 3 && (
