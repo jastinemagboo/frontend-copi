@@ -23,5 +23,5 @@ export function dateFormat(iso?: string | null) {
   const minute = get("minute"); // "39"
   const meridiem = get("dayPeriod").toUpperCase(); // "PM"
 
-  return `${month} ${day} ${year} at ${hour}:${minute} ${meridiem}`;
+  return `${month} ${day}, ${year} at ${hour}:${minute} ${meridiem}`;
 }

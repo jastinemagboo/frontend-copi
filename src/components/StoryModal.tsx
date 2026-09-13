@@ -13,10 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader, SquarePen } from "lucide-react";
+import { Coffee, Loader, SquarePen } from "lucide-react";
 
 type Props = {
   onCreate?: (payload: CreatePostPayload) => Promise<void> | void;
+  trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (next: boolean) => void;
   initial?: { title?: string; content?: string };
@@ -31,11 +32,14 @@ export default function StoryModal({
   onOpenChange,
   initial,
   mode = "create",
+  trigger,
 }: Props) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
   const [submitting, setSubmitting] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+
+  const [titleError, setTitleError] = useState("");
+  const [contentError, setContentError] = useState("");
 
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp ?? internalOpen;
@@ -47,48 +51,70 @@ export default function StoryModal({
     if (mode === "edit" && open) {
       setTitle(initial?.title ?? "");
       setContent(initial?.content ?? "");
+      setTitleError("");
+      setContentError("");
     }
   }, [mode, open, initial?.title, initial?.content]);
 
   const resetForm = () => {
     setTitle("");
     setContent("");
-    setErr(null);
+    setTitleError("");
+    setContentError("");
     setSubmitting(false);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const payload = { title: title.trim(), content: content.trim() };
-    const missingTitle = !payload.title;
-    const missingContent = !payload.content;
 
-    if (missingTitle || missingContent) {
-      setErr(
-        missingTitle && missingContent
-          ? "Please add your favorite coffee and your story."
-          : missingTitle
-          ? "Please enter your favorite coffee."
-          : "Please share your coffee story."
-      );
+    const trimmedTitle = title.trim();
+    const trimmedContent = content.trim();
+
+    // Clear previous errors
+    setTitleError("");
+    setContentError("");
+
+    let hasError = false;
+
+    if (!trimmedTitle) {
+      setTitleError("Please enter your favorite coffee.");
+      hasError = true;
+    }
+
+    if (!trimmedContent) {
+      setContentError("Please share your coffee story.");
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
+
+    const payload: CreatePostPayload = {
+      title: trimmedTitle,
+      content: trimmedContent,
+    };
+
     try {
       setSubmitting(true);
-      setErr(null);
 
       if (mode === "edit") {
         await onSubmit?.(payload);
       } else {
         await onCreate?.(payload);
-        resetForm();
       }
 
       setTitle("");
       setContent("");
+      setTitleError("");
+      setContentError("");
       setOpen(false);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed to post");
+      setTitleError(
+        e instanceof Error
+          ? e.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -99,72 +125,146 @@ export default function StoryModal({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) resetForm();
+
+        if (!next) {
+          resetForm();
+        }
       }}
     >
+      {/* Trigger */}
       {mode === "create" && !openProp && (
         <DialogTrigger asChild>
-          <DialogTrigger asChild>
+          {trigger ?? (
             <Button
               aria-label="Share Story"
               className="
-                rounded-full
-                h-10 w-10                 
-                sm:h-[36px] sm:w-auto     
-                sm:px-4
-                flex items-center justify-center
-                text-white bg-[#4B3C2F] hover:bg-[#4B3C2F]
-                gap-0 sm:gap-2
-              "
+          h-10
+          rounded-full
+          bg-[#4B3C2F]
+          px-5
+          text-white
+          shadow-sm
+          transition
+          hover:-translate-y-0.5
+          hover:bg-[#3F3228]
+          hover:shadow-md
+          gap-2
+        "
             >
-              <SquarePen className="h-5 w-5" aria-hidden="true" />
-              <span className="hidden sm:inline">Share Story</span>
+              <SquarePen className="h-4 w-4" aria-hidden="true" />
+              <span>Share Story</span>
             </Button>
-          </DialogTrigger>
+          )}
         </DialogTrigger>
       )}
 
+      {/* Modal */}
       <DialogContent
         onOpenAutoFocus={(e) => {
           if (titleRef.current) {
             e.preventDefault();
+
             const el = titleRef.current;
             el.focus({ preventScroll: true });
+
             const len = el.value.length;
             el.setSelectionRange?.(len, len);
           }
         }}
         aria-describedby={undefined}
         onInteractOutside={(e) => e.preventDefault()}
-        className="w-[88vw] max-w-full scale-100 rounded-3xl bg-[#f9f5f1] p-6 sm:p-8 shadow-2xl transition-all duration-300"
+        className="
+          w-[92vw]
+          max-w-lg
+          rounded-3xl
+          border-[#E8DED5]
+          bg-[#F9F5F1]
+          p-6
+          shadow-2xl
+          sm:p-8
+        "
       >
-        <DialogHeader className="flex justify-center items-center mb-4 text-center text-2xl text-[#4B3C2F]">
-          <DialogTitle className="font-bold">
+        <DialogHeader className="items-center text-center">
+          {/* Coffee Icon */}
+          <div
+            className="
+              mb-4
+              flex
+              h-11
+              w-11
+              items-center
+              justify-center
+              rounded-full
+              bg-[#E9DDD2]
+              text-[#8B5E3C]
+            "
+          >
+            <Coffee className="h-5 w-5" aria-hidden="true" />
+          </div>
+
+          <DialogTitle className="text-2xl font-bold tracking-tight text-[#4B3C2F]">
             {mode === "edit" ? "Edit Coffee Story" : "Share Your Coffee Story"}
           </DialogTitle>
+
+          <p className="mt-2 max-w-sm text-sm leading-6 text-[#76685E]">
+            {mode === "edit"
+              ? "Make a few changes to your coffee story."
+              : "A cup, a moment, a story worth remembering."}
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4">
-            <div className="grid gap-3">
+
+        <form onSubmit={handleSubmit} className="mt-7">
+          <div className="grid gap-5">
+            {/* Coffee */}
+            <div className="grid gap-2">
               <Label
-                htmlFor="name-1"
-                className=" text-sm font-medium text-[#4B3C2F]"
+                htmlFor="story-title"
+                className="text-sm font-medium text-[#4B3C2F]"
               >
-                Favorite Coffee
+                What are you drinking?
               </Label>
+
               <Input
+                ref={titleRef}
                 id="story-title"
                 name="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="border-[#4B3C2F] placeholder:text-[#4B3C2F]/60 "
-                placeholder="e.g., Spanish Latte"
+                onChange={(e) => {
+                  setTitle(e.target.value);
+
+                  if (titleError) {
+                    setTitleError("");
+                  }
+                }}
+                placeholder="e.g. Spanish Latte"
+                aria-invalid={!!titleError}
+                className={`
+                  h-11
+                  rounded-xl
+                  bg-white/70
+                  text-[#4B3C2F]
+                  placeholder:text-[#9A8B80]
+                  shadow-none
+                  transition
+                  focus-visible:ring-[#8B5E3C]/20
+                  ${
+                    titleError
+                      ? "border-red-300 focus-visible:border-red-400"
+                      : "border-[#DCCFC3] focus-visible:border-[#8B5E3C]"
+                  }
+                `}
               />
+
+              {titleError && (
+                <p className="text-xs text-red-500">{titleError}</p>
+              )}
             </div>
-            <div className="grid gap-3">
+
+            {/* Story */}
+            <div className="grid gap-2">
               <Label
-                htmlFor="username-1"
-                className=" text-sm font-medium text-[#4B3C2F]"
+                htmlFor="story-content"
+                className="text-sm font-medium text-[#4B3C2F]"
               >
                 Your Story
               </Label>
@@ -172,39 +272,90 @@ export default function StoryModal({
               <Textarea
                 id="story-content"
                 name="content"
-                rows={6}
+                rows={7}
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="border-[#4B3C2F] placeholder:text-[#4B3C2F]/60"
+                onChange={(e) => {
+                  setContent(e.target.value);
+
+                  if (contentError) {
+                    setContentError("");
+                  }
+                }}
                 placeholder="How does coffee help you cope?"
+                aria-invalid={!!contentError}
+                className={`
+                  min-h-[160px]
+                  resize-none
+                  rounded-xl
+                  bg-white/70
+                  text-[#4B3C2F]
+                  placeholder:text-[#9A8B80]
+                  shadow-none
+                  transition
+                  focus-visible:ring-[#8B5E3C]/20
+                  ${
+                    contentError
+                      ? "border-red-300 focus-visible:border-red-400"
+                      : "border-[#DCCFC3] focus-visible:border-[#8B5E3C]"
+                  }
+                `}
               />
+
+              {contentError && (
+                <p className="text-xs text-red-500">{contentError}</p>
+              )}
             </div>
           </div>
-          {err && <p className="text-sm mt-2 text-red-600">{err}</p>}
 
-          <DialogFooter className="mt-4">
+          {/* Footer */}
+          <DialogFooter className="mt-7 flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <DialogClose asChild>
               <Button
+                type="button"
                 variant="outline"
-                className="h-10 w-full sm:w-auto rounded-full text-[#4B3C2F] hover:bg-[#f3eee9] hover:text-[#4B3C2F]"
                 onClick={() => setOpen(false)}
+                className="
+                  h-10
+                  w-full
+                  rounded-full
+                  border-[#DCCFC3]
+                  bg-transparent
+                  px-5
+                  text-[#4B3C2F]
+                  hover:bg-[#F1EBE5]
+                  hover:text-[#4B3C2F]
+                  sm:w-auto
+                "
               >
                 Cancel
               </Button>
             </DialogClose>
+
             <Button
               type="submit"
               disabled={submitting}
-              className="h-10 w-full sm:w-auto rounded-full bg-[#4B3C2F] hover:bg-[#4B3C2F] text-white"
+              className="
+                h-10
+                w-full
+                rounded-full
+                bg-[#4B3C2F]
+                px-5
+                text-white
+                shadow-sm
+                transition
+                hover:bg-[#3F3228]
+                sm:w-auto
+              "
             >
               {submitting && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+
               {submitting
                 ? mode === "edit"
                   ? "Saving…"
-                  : "Posting…"
+                  : "Sharing…"
                 : mode === "edit"
-                ? "Save"
-                : "Post"}
+                  ? "Save Changes"
+                  : "Share Story"}
             </Button>
           </DialogFooter>
         </form>
