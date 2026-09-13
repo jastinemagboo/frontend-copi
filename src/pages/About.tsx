@@ -43,10 +43,11 @@ export default function About() {
   return (
     <main className="min-h-screen bg-[#F7F3EE] text-[#3E3027]">
       {/* Hero */}
-      <section className="px-6 pb-20 pt-32">
-        <div className="mx-auto max-w-5xl">
-          <div className="max-w-3xl">
-            <div className="mb-5 flex items-center gap-2 text-sm font-medium text-[#8B5E3C]">
+      <section className="px-6 pb-24 pt-32">
+        <div className="mx-auto grid max-w-6xl items-center gap-16 md:grid-cols-[1.1fr_0.9fr]">
+          {/* Story */}
+          <div>
+            <div className="mb-6 flex items-center gap-2 text-sm font-medium text-[#8B5E3C]">
               <Coffee size={17} />
               <span>The story behind COPI</span>
             </div>
@@ -57,11 +58,24 @@ export default function About() {
               <span className="text-[#8B5E3C]">COPI.</span>
             </h1>
 
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-[#76685E]">
+            <p className="mt-7 max-w-xl text-lg leading-8 text-[#76685E]">
               COPI started with something simple: coffee has always been a
               little more than just a drink for me. It became one of the little
               ways I learned to cope.
             </p>
+          </div>
+
+          {/* Coffee Visual */}
+          <div className="relative flex min-h-[380px] items-center justify-center">
+            <img
+              src="/copi-coffee-3d.png"
+              alt="Coffee cup"
+              className="w-[340px] object-contain sm:w-[400px]"
+            />
+
+            <span className="absolute bottom-10 right-4 text-sm italic text-[#A08D7D]">
+              a little cup of comfort
+            </span>
           </div>
         </div>
       </section>
